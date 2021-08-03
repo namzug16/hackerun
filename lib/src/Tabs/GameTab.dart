@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:funvas/funvas.dart';
 import 'package:hackerun/src/Player/PlayerController.dart';
 import 'package:hackerun/src/Widgets/Ground.dart';
+import 'package:hackerun/src/Widgets/TestButton.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../GameController.dart';
@@ -36,7 +37,8 @@ class GameTab extends HookWidget {
                 funvas: GameFunvas(game),
               ),
             ),
-            Ground(),
+            RepaintBoundary(child: Ground()),
+            RepaintBoundary(child: TestButton()),
           ],
         ),
       ),

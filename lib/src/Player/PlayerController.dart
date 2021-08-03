@@ -1,10 +1,13 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Image;
+import 'package:hackerun/src/Enemies/EnemySpawnerController.dart';
 import 'package:hackerun/src/GlobalVariables.dart';
 import 'package:hackerun/src/Helpers/loadImage.dart';
 import 'package:hackerun/src/Player/Player.dart';
 import 'package:hackerun/src/Player/States.dart';
+import 'package:hackerun/src/WordlProviders/WorldProviders.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../Extensions/OffsetExtensions.dart';
@@ -14,11 +17,15 @@ class PlayerController extends StateNotifier<Player> {
 
   final Reader read;
 
-  // * World variables
-  static const double gravity = 1;
+  EnemySpawnerController? _spawner;
+
 
   // * Player variables
-  static const double jumpVelocity = 20;
+  static const double maxJumpVelocity = 20;
+  static const double maxDistanceToJump = 2*16*scaleFactor*1.3;
+  double jumpVelocity = 20;
+  double acceleration = 1;
+
 
   Image? sprite;
 
@@ -31,17 +38,23 @@ class PlayerController extends StateNotifier<Player> {
 
   void init(Size size) async {
     sprite = await loadImage("Hacker-Sheet.png");
+    _spawner = read(enemySpawnerProvider.notifier);
     // size of the entire sprite
     state = state.copyWith(size: Size(16 * scaleFactor, 16 * scaleFactor));
     state = state.copyWith(
         position: Offset(size.width / 2, size.height - maxSizeFloor) -
             Offset(state.size.width / 2, state.size.height));
     _initialPosition = state.position;
+    // size of hitBox
+    state = state.copyWith(
+        size: Size(state.size.width - 9 * scaleFactor,
+            state.size.height - 2 * scaleFactor));
   }
 
   void renderPlayer(Canvas c, x) {
-    _stateLogic();
-    _move(x);
+
+    _stateLogic(x);
+    _checkCollision();
     c.save();
     c.translate(state.position.dx, state.position.dy);
     c.scale(scaleFactor);
@@ -60,8 +73,9 @@ class PlayerController extends StateNotifier<Player> {
   //Fall 5
   //DoubleJump 6
 
-  void _stateLogic() {
+  void _stateLogic(x) {
     if (_lS == LifeStates.Alive) {
+      _move(x);
       switch (_mS) {
         case MovementStates.Idle:
           animationIndex = 2;
@@ -118,7 +132,7 @@ class PlayerController extends StateNotifier<Player> {
           _oldState = _mS;
           state = state.copyWith(velocityY: 0);
           _mS = newState;
-        }else if(newState == MovementStates.DoubleJump){
+        } else if (newState == MovementStates.DoubleJump) {
           _oldState = _mS;
           _mS = newState;
         }
@@ -134,38 +148,45 @@ class PlayerController extends StateNotifier<Player> {
     } else if (_mS == MovementStates.Jump) {
       state = state.copyWith(velocityY: jumpVelocity);
       _setState(MovementStates.DoubleJump);
-    }else if(_mS == MovementStates.Fall && _oldState == MovementStates.Jump){
+    } else if (_mS == MovementStates.Fall && _oldState == MovementStates.Jump) {
       state = state.copyWith(velocityY: jumpVelocity);
       _setState(MovementStates.DoubleJump);
     }
   }
 
-
+  double wvSaved = 0;
   void _move(x) {
+    final wv = read(worldSpeed).state;
+    if(wvSaved == 0 || wvSaved != wv){
+      jumpVelocity = maxJumpVelocity * wv;
+      wvSaved = wv;
+    }
+    acceleration = pow(jumpVelocity, 2)/(2*maxDistanceToJump);
     if (state.position == _initialPosition && _mS != MovementStates.Run) {
       _setState(MovementStates.Run);
     }
     if (_mS == MovementStates.Jump || _mS == MovementStates.DoubleJump) {
       state = state.copyWith(
-          velocityY: state.velocityY - gravity,
+          velocityY: state.velocityY - acceleration,
           position: state.position - Offset(0, state.velocityY));
-      if(state.velocityY <= 0){
+      if (state.velocityY <= 0) {
         _setState(MovementStates.Fall);
       }
     } else if (_mS == MovementStates.Fall) {
       state = state.copyWith(
-          velocityY: state.velocityY + gravity,
+          velocityY: state.velocityY + acceleration,
           position: (state.position + Offset(0, state.velocityY))
               .clamp(Offset.zero, _initialPosition));
     }
   }
 
-  // * =======> Private
+  // * ========== Animations
   int animationIndex = 0;
   int frame = 0;
   int frameCount = 0;
 
   void _spriteAnimation(Canvas c) {
+    final dark = read(darkWorldProvider);
     final List<int> v = framesValuesPlayer[animationIndex]; // frame Values
     final int amountFrames = spritesPlayer[animationIndex].length;
     final int fc = 60 ~/ v[0];
@@ -182,44 +203,58 @@ class PlayerController extends StateNotifier<Player> {
     c.drawImageRect(
         sprite!,
         Rect.fromLTWH(spritesPlayer[animationIndex][frame].dx,
-            spritesPlayer[animationIndex][frame].dy, 16, 16),
+            spritesPlayer[animationIndex][frame].dy + (dark ? 16 : 0), 16, 16),
         Rect.fromLTWH(0, 0, 16, 16),
         Paint());
+  }
+
+  // * ========= Collision
+
+  void _checkCollision() {
+    final posHB = state.position + Offset(5 * scaleFactor, 2 * scaleFactor);
+    if (_spawner != null) {
+      if (_spawner!.firewalls != null && _spawner!.firewalls!.isNotEmpty) {
+        for (var f in _spawner!.firewalls!) {
+          if((posHB & state.size).overlaps(f.hitBox)){
+            _lS = LifeStates.Dead;
+          }
+        }
+      }
+    }
   }
 
   // * ========== Debug
 
   void renderHitBox(Canvas c) {
+    final Rect hitBox =
+        (state.position + Offset(5 * scaleFactor, 2 * scaleFactor)) &
+            state.size;
     c.save();
-    c.drawRect(state.position & state.size, Paint()..color = Colors.blueAccent.withOpacity(0.3));
+    c.drawRect(hitBox, Paint()..color = Colors.blueAccent.withOpacity(0.3));
     c.restore();
   }
 
-  void renderState(Canvas c){
+  void renderState(Canvas c) {
     final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-      text: TextSpan(
-        text: _mS.toString(),
-        style: TextStyle(
-          fontSize: 20,
-          color: Colors.redAccent
-        )
-      )
-    )..layout();
+        textDirection: TextDirection.ltr,
+        text: TextSpan(
+            text: _mS.toString(),
+            style: TextStyle(fontSize: 20, color: Colors.redAccent)))
+      ..layout();
 
     final textPainter2 = TextPainter(
         textDirection: TextDirection.ltr,
         text: TextSpan(
             text: "old: " + _oldState.toString(),
-            style: TextStyle(
-                fontSize: 20,
-                color: Colors.redAccent
-            )
-        )
-    )..layout();
+            style: TextStyle(fontSize: 20, color: Colors.redAccent)))
+      ..layout();
 
     textPainter.paint(c, state.position - Offset(0, textPainter.height));
-    textPainter2.paint(c, state.position - Offset(0, textPainter.height) - Offset(0, textPainter2.height));
+    textPainter2.paint(
+        c,
+        state.position -
+            Offset(0, textPainter.height) -
+            Offset(0, textPainter2.height));
   }
 }
 
