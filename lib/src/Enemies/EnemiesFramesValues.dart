@@ -26,18 +26,18 @@ const spritesFirewall = [
 
 const framesValuesBugs = [
   [15 , 1], // ground
-  [20 , 1] // flying
+  [15 , 1] // flying
 ];
 
 const spritesBugs = [
   [
-    Offset(96, 80),
-    Offset(208, 80),
-    Offset(320, 80),
-    Offset(432, 80),
+    Offset(80, 64),
+    Offset(192, 64),
+    Offset(304, 64),
+    Offset(416, 64),
   ], // walk
   [
-    Offset(96, 64),
-    Offset(208, 64),
+    Offset(80, 48),
+    Offset(192, 48),
   ], // fly
 ];

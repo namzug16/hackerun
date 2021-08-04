@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Image;
 import 'package:hackerun/src/Enemies/EnemySpawnerController.dart';
+import 'package:hackerun/src/GameController.dart';
 import 'package:hackerun/src/GlobalVariables.dart';
 import 'package:hackerun/src/Helpers/loadImage.dart';
 import 'package:hackerun/src/Player/Player.dart';
@@ -19,18 +20,20 @@ class PlayerController extends StateNotifier<Player> {
 
   EnemySpawnerController? _spawner;
 
-
   // * Player variables
-  static const double maxJumpVelocity = 20;
-  static const double maxDistanceToJump = 2*16*scaleFactor*1.3;
-  double jumpVelocity = 20;
-  double acceleration = 1;
+  static const double jumpVelocity = 20;
 
+  // acceleration is then set based on the distance to jump
+  // and the max velocity of the jump
+  double acceleration = 1;
+  static const double maxDistanceToJump = 2 * 16 * scaleFactor * 1.3;
 
   Image? sprite;
 
   MovementStates _mS = MovementStates.Idle;
   LifeStates _lS = LifeStates.Alive;
+
+  bool get isAlive => _lS == LifeStates.Alive;
 
   // ! ===============================================================> Methods
 
@@ -51,8 +54,19 @@ class PlayerController extends StateNotifier<Player> {
             state.size.height - 2 * scaleFactor));
   }
 
-  void renderPlayer(Canvas c, x) {
+  bool _gameStarted = false;
 
+  void startGame() {
+    _gameStarted = true;
+  }
+
+  void restartGame() {
+    _gameStarted = false;
+    _setState(MovementStates.Idle);
+    _lS = LifeStates.Alive;
+  }
+
+  void renderPlayer(Canvas c, x) {
     _stateLogic(x);
     _checkCollision();
     c.save();
@@ -66,7 +80,7 @@ class PlayerController extends StateNotifier<Player> {
 
   // * ===================== State
   //Run 0
-  //Metal 1
+  //Metal 1 extra animation that I liked
   //Idle 2
   //Hurt 3
   //Jump 4
@@ -109,20 +123,23 @@ class PlayerController extends StateNotifier<Player> {
         _mS = newState;
         break;
       case MovementStates.Run:
-        if (newState == MovementStates.Jump) {
+        if (newState == MovementStates.Jump ||
+            newState == MovementStates.Idle) {
           _oldState = _mS;
           _mS = newState;
         }
         break;
       case MovementStates.Jump:
         if (newState == MovementStates.DoubleJump ||
-            newState == MovementStates.Fall) {
+            newState == MovementStates.Fall ||
+            newState == MovementStates.Idle) {
           _oldState = _mS;
           _mS = newState;
         }
         break;
       case MovementStates.DoubleJump:
-        if (newState == MovementStates.Fall) {
+        if (newState == MovementStates.Fall ||
+            newState == MovementStates.Idle) {
           _oldState = _mS;
           _mS = newState;
         }
@@ -132,7 +149,8 @@ class PlayerController extends StateNotifier<Player> {
           _oldState = _mS;
           state = state.copyWith(velocityY: 0);
           _mS = newState;
-        } else if (newState == MovementStates.DoubleJump) {
+        } else if (newState == MovementStates.DoubleJump ||
+            newState == MovementStates.Idle) {
           _oldState = _mS;
           _mS = newState;
         }
@@ -154,15 +172,11 @@ class PlayerController extends StateNotifier<Player> {
     }
   }
 
-  double wvSaved = 0;
   void _move(x) {
-    final wv = read(worldSpeed).state;
-    if(wvSaved == 0 || wvSaved != wv){
-      jumpVelocity = maxJumpVelocity * wv;
-      wvSaved = wv;
-    }
-    acceleration = pow(jumpVelocity, 2)/(2*maxDistanceToJump);
-    if (state.position == _initialPosition && _mS != MovementStates.Run) {
+    acceleration = pow(jumpVelocity, 2) / (2 * maxDistanceToJump);
+    if (state.position == _initialPosition &&
+        _mS != MovementStates.Run &&
+        _gameStarted) {
       _setState(MovementStates.Run);
     }
     if (_mS == MovementStates.Jump || _mS == MovementStates.DoubleJump) {
@@ -177,11 +191,17 @@ class PlayerController extends StateNotifier<Player> {
           velocityY: state.velocityY + acceleration,
           position: (state.position + Offset(0, state.velocityY))
               .clamp(Offset.zero, _initialPosition));
+    } else if (_mS == MovementStates.Idle &&
+        state.position != _initialPosition) {
+      state = state.copyWith(
+          velocityY: state.velocityY + acceleration,
+          position: (state.position + Offset(0, state.velocityY))
+              .clamp(Offset.zero, _initialPosition));
     }
   }
 
   // * ========== Animations
-  int animationIndex = 0;
+  int animationIndex = 2;
   int frame = 0;
   int frameCount = 0;
 
@@ -213,14 +233,30 @@ class PlayerController extends StateNotifier<Player> {
   void _checkCollision() {
     final posHB = state.position + Offset(5 * scaleFactor, 2 * scaleFactor);
     if (_spawner != null) {
-      if (_spawner!.firewalls != null && _spawner!.firewalls!.isNotEmpty) {
-        for (var f in _spawner!.firewalls!) {
-          if((posHB & state.size).overlaps(f.hitBox)){
-            _lS = LifeStates.Dead;
+      if (_spawner!.firewalls.length > 0) {
+        for (var f in _spawner!.firewalls) {
+          if ((posHB & state.size).overlaps(f.hitBox)) {
+            _kill();
+          }
+        }
+      }
+      if (_spawner!.bugs.length > 0) {
+        for (var b in _spawner!.bugs) {
+          if ((posHB & state.size).overlaps(b.hitBox)) {
+            _kill();
           }
         }
       }
     }
+  }
+
+  void _kill() {
+    if (_lS == LifeStates.Alive) {
+      frame = 0;
+      frameCount = 0;
+      _lS = LifeStates.Dead;
+    }
+    read(gameProvider.notifier).gameOver();
   }
 
   // * ========== Debug
@@ -265,7 +301,7 @@ final playerProvider = StateNotifierProvider<PlayerController, Player>(
 const framesValuesPlayer = [
   [15, 1], //Run 0
   [12, 1], //Metal 1
-  [10, 1], //Idle 2
+  [12, 1], //Idle 2
   [10, 0], //Hurt 3
   [25, 0], //Jump 4
   [18, 1], //Fall 5

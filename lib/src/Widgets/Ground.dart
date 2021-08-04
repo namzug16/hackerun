@@ -29,8 +29,22 @@ class GroundPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
 
+    final tpTitle = TextPainter(
+      textDirection: TextDirection.ltr,
+        text: TextSpan(
+            text: "Hackerun",
+            style: TextStyle(
+                fontFamily: 'DpComic',
+                fontSize: 100,
+                color: !isDark ? Color.fromRGBO(17, 17, 17, 1)
+                    : Color.fromRGBO(186, 186, 186, 1)
+            ),
+        )
+    )..layout();
+
+    tpTitle.paint(canvas, Offset(size.width/2 - tpTitle.width/2, 50));
     canvas.drawRect(
-        Offset(0, size.height - maxSizeFloor) & Size(size.width, maxSizeFloor),
+        Offset(-100, size.height - maxSizeFloor) & Size(size.width*1.2, maxSizeFloor*1.2),
         Paint()
           ..color = !isDark
               ? Color.fromRGBO(17, 17, 17, 1)

@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hackerun',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        fontFamily: 'DpComic'
       ),
       // home: GameTab(),
       home: TestTab(),
