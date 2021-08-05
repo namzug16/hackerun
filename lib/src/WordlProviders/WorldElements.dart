@@ -23,7 +23,7 @@ class WorldElements extends StateNotifier<bool>{
   void _drawInstructions(Canvas c, x){
     final tp = TextPainter(
       text: TextSpan(
-        text: "Controls are REALLY HARD!! just press once to jump and press again to double jump. \n\nTry to evade all those firewalls and bugs!!!",
+        text: "Controls are REALLY HARD!! just click once to jump and click again to double jump. \n\nTry to evade all those firewalls and bugs!!!",
         style: TextStyle(
           color: Color.fromRGBO(17, 17, 17, 1),
           fontFamily: 'DpComic',

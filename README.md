@@ -14,8 +14,10 @@ Hackerun is an 2D endless runner made in Flutter with Funvas and Riverpod as the
 [Hackerun](https://namzug16.github.io/hackerun/)
 
 ## :grey_question: Controls
-Playing this game is really hard!! You just have to press once when you want to jump and press again 
+Playing this game is really hard!! You just have to click once when you want to jump and click again 
 if you want to double jump.
+
+Click Init(); to start playing and evade all those firewalls and bugs.
 
 ## :gear: Technologies
 - [Flutter](https://flutter.dev/)
