@@ -44993,7 +44993,7 @@ return s==null?H.f(H.x("_wv")):s},
 o_:function(){var s=0,r=P.a6(t.z),q=this,p
 var $async$o_=P.a2(function(a,b){if(a===1)return P.a3(b,r)
 while(true)switch(s){case 0:s=2
-return P.a9(N.Hg("HackerEnemies-Sheet.png"),$async$o_)
+return P.a9(N.Hg("assets/HackerEnemies-Sheet.png"),$async$o_)
 case 2:q.z=b
 p=q.r.$1$1($.YX().gd4(),t.B6)
 if(q.x==null)q.x=p
@@ -45230,7 +45230,7 @@ o0:function(a){return this.Rd(a)},
 Rd:function(a){var s=0,r=P.a6(t.z),q=this,p,o
 var $async$o0=P.a2(function(b,c){if(b===1)return P.a3(c,r)
 while(true)switch(s){case 0:s=2
-return P.a9(N.Hg("Hacker-Sheet.png"),$async$o0)
+return P.a9(N.Hg("assets/Hacker-Sheet.png"),$async$o0)
 case 2:q.Q=c
 p=q.r.$1$1($.Hx().gd4(),t.u0)
 if(q.y==null)q.y=p
