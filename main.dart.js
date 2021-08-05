@@ -44898,7 +44898,7 @@ f=H.at()
 f=f?H.bc():new H.aY(new H.b1())
 f.say(0,p?P.eP(17,17,17,1):P.eP(186,186,186,1))
 a.bs(0,new P.y(-100,g,-100+n*1.2,g+230.39999999999998),f)
-if(!q.r.$1$1($.YU().gd4(),t.DC).fy){e=new U.iH(Q.rp(c,A.hi(c,c,P.eP(17,17,17,1),c,c,c,c,c,b,c,c,30,c,c,c,c,!0,c,c,c,c,c,c,c),"Controls are REALLY HARD!! just press once to jump and press again to double jump. \n\nTry to evade all those firewalls and bugs!!!"),C.K,C.m,1,c,c,c,c,C.az,c)
+if(!q.r.$1$1($.YU().gd4(),t.DC).fy){e=new U.iH(Q.rp(c,A.hi(c,c,P.eP(17,17,17,1),c,c,c,c,c,b,c,c,30,c,c,c,c,!0,c,c,c,c,c,c,c),"Controls are REALLY HARD!! just click once to jump and click again to double jump. \n\nTry to evade all those firewalls and bugs!!!"),C.K,C.m,1,c,c,c,c,C.az,c)
 e.RG(0,300)
 q=e.a
 q.toString
