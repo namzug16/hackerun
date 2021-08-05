@@ -1,16 +1,24 @@
-# hackerun
+<h1 align="center">Hackerun</h1>
+<br>
+<div align="center">
+    <img src="./assets/Hacker.gif" alt="Hacker running" width="64" height="64"/>
+</div>
+<br>
+<hr>
 
-A new Flutter project.
+## :video_game: About
 
-## Getting Started
+Hackerun is an 2D endless runner made in Flutter with Funvas and Riverpod as the main technologies.
 
-This project is a starting point for a Flutter application.
+## :heavy_check_mark: See how much you score!!!
+[Hackerun](https://namzug16.github.io/hackerun/)
 
-A few resources to get you started if this is your first Flutter project:
+## :grey_question: Controls
+Playing this game is really hard!! You just have to press once when you want to jump and press again 
+if you want to double jump.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## :gear: Technologies
+- [Flutter](https://flutter.dev/)
+- [Funvas](https://pub.dev/packages/funvas)
+- [Riverpod](https://pub.dev/packages/riverpod)
+- [Hooks](https://pub.dev/packages/flutter_hooks)
