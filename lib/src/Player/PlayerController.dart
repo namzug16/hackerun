@@ -41,7 +41,7 @@ class PlayerController extends StateNotifier<Player> {
   Offset _initialPosition = Offset.zero;
 
   void init(Size size) async {
-    sprite = await loadImage("Hacker-Sheet.png");
+    sprite = await loadImage("assets/Hacker-Sheet.png");
     _wv = read(worldVariablesProvider.notifier);
     _spawner = read(enemySpawnerProvider.notifier);
     // size of the entire sprite

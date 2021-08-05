@@ -20,7 +20,7 @@ class EnemySpawnerController extends StateNotifier<bool> {
   Image? spriteSheet;
 
   void init() async {
-    spriteSheet = await loadImage("HackerEnemies-Sheet.png");
+    spriteSheet = await loadImage("assets/HackerEnemies-Sheet.png");
     _player = read(playerProvider.notifier);
     _wv = read(worldVariablesProvider.notifier);
   }
