@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:funvas/funvas.dart';
 import 'package:hackerun/src/Player/PlayerController.dart';
-import 'package:hackerun/src/Widgets/Ground.dart';
-import 'package:hackerun/src/Widgets/TestButton.dart';
-import 'package:hackerun/src/WordlProviders/WorldProviders.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../GameController.dart';
@@ -27,8 +24,8 @@ class GameTab extends HookWidget {
     return Scaffold(
       body: GestureDetector(
         onTapDown: (details){
-          if(game.acceptsTabs){
-            game.setTab(details.globalPosition);
+          if(game.acceptsTaps){
+            game.setTap(details.globalPosition);
           }else{
             playerController.jump();
           }

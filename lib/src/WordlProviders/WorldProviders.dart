@@ -16,6 +16,11 @@ class WorldVariables extends StateNotifier<bool> {
   void incrementSpeed() {
     _speed += 0.02;
   }
+
+  void restart(){
+    _speed = 1;
+    _isDark = false;
+  }
 }
 
 final worldVariablesProvider =

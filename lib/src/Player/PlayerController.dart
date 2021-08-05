@@ -71,7 +71,7 @@ class PlayerController extends StateNotifier<Player> {
   void renderPlayer(Canvas c, x) {
     if(sprite != null){
       _stateLogic(x);
-      // _checkCollision();
+      _checkCollision();
       c.save();
       c.translate(state.position.dx, state.position.dy);
       c.scale(scaleFactor);

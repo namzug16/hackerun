@@ -55,7 +55,7 @@ class GameController extends StateNotifier<bool> {
 
   void gameOver() {
     state = false;
-    _acceptsTabs = true;
+    _acceptsTaps = true;
   }
 
   void _renderScore(Canvas c, x) {
@@ -133,12 +133,12 @@ class GameController extends StateNotifier<bool> {
     c.restore();
   }
 
-  bool get acceptsTabs => _acceptsTabs;
-  bool _acceptsTabs = true;
+  bool get acceptsTaps => _acceptsTaps;
+  bool _acceptsTaps = true;
 
   Offset _tab = Offset.zero;
 
-  void setTab(Offset tab) {
+  void setTap(Offset tab) {
     _tab = tab;
   }
 
@@ -146,7 +146,7 @@ class GameController extends StateNotifier<bool> {
   bool _gameStarted = false;
 
   void _startGame() {
-    _acceptsTabs = false;
+    _acceptsTaps = false;
     _gameStarted = true;
     state = true;
     _player.startGame();
@@ -158,6 +158,9 @@ class GameController extends StateNotifier<bool> {
     _gameStarted = false;
     _player.restartGame();
     _spawner.restartGame();
+    _savedValueSpeed = 0;
+    _savedValueDark = 0;
+    _wv.restart();
   }
 
   int _savedValueSpeed = 0;
@@ -166,7 +169,6 @@ class GameController extends StateNotifier<bool> {
     if((_score/120).floor() != _savedValueSpeed && _wv.speed < 2.5){
       _wv.incrementSpeed();
       _savedValueSpeed++;
-      print(_wv.speed);
     }
     if(((_score/5)/500).floor() != _savedValueDark){
       _wv.changeColorWorld();
