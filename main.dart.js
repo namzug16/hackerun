@@ -15085,7 +15085,7 @@ oJ:function(a){var s
 if(P.a45(a).gB5())return P.Gg(C.dU,a,C.G,!1)
 s=this.gIV()
 if(s==null)s=""
-return P.Gg(C.dU,s+("assets/"+a),C.G,!1)},
+return P.Gg(C.dU,s+("hackerun/assets/"+a),C.G,!1)},
 c0:function(a,b){return this.RK(a,b)},
 RK:function(a,b){var s=0,r=P.a6(t.yp),q,p=2,o,n=[],m=this,l,k,j,i,h,g,f,e
 var $async$c0=P.a2(function(c,d){if(c===1){o=d
