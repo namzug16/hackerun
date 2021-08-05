@@ -9,24 +9,24 @@ class TestButton extends HookWidget {
   @override
   Widget build(BuildContext context) {
 
-    final dark = useProvider(darkWorldProvider.notifier);
-    final wv = useProvider(worldSpeed);
+    // final dark = useProvider(darkWorldProvider.notifier);
+    // final wv = useProvider(worldSpeed);
     return SizedBox(
       height: 200,
       child: Column(
         children: [
           TextButton(
             onPressed: () {
-              dark.change();
-              wv.state += 0.01;
-              print(wv.state);
+              // dark.change();
+              // wv.state += 0.01;
+              // print(wv.state);
             },
             child: const Text("Test"),
           ),
           TextButton(
             onPressed: () {
-              wv.state = 2;
-              print(wv.state);
+              // wv.state = 2;
+              // print(wv.state);
             },
             child: const Text("Set World Speed"),
           ),

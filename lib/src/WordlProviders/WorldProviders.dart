@@ -1,14 +1,22 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class DarkWorld extends StateNotifier<bool> {
-  DarkWorld() : super(false);
+class WorldVariables extends StateNotifier<bool> {
+  WorldVariables() : super(true);
 
-  void change() {
-    state = !state;
+  bool get isDark => _isDark;
+  bool _isDark = false;
+
+  double get speed => _speed;
+  double _speed = 1;
+
+  void changeColorWorld() {
+    _isDark = !_isDark;
+  }
+
+  void incrementSpeed() {
+    _speed += 0.02;
   }
 }
 
-final darkWorldProvider =
-    StateNotifierProvider<DarkWorld, bool>((ref) => DarkWorld());
-
-final worldSpeed = StateProvider<double>((ref) => 1);
+final worldVariablesProvider =
+    StateNotifierProvider<WorldVariables, bool>((ref) => WorldVariables());

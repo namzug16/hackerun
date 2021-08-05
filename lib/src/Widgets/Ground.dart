@@ -10,7 +10,8 @@ class Ground extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = useProvider(darkWorldProvider);
+    // final isDark = useProvider(darkWorldProvider);
+    final isDark = false;
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,

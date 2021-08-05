@@ -19,6 +19,7 @@ class PlayerController extends StateNotifier<Player> {
   final Reader read;
 
   EnemySpawnerController? _spawner;
+  late final WorldVariables _wv;
 
   // * Player variables
   static const double jumpVelocity = 20;
@@ -41,6 +42,7 @@ class PlayerController extends StateNotifier<Player> {
 
   void init(Size size) async {
     sprite = await loadImage("Hacker-Sheet.png");
+    _wv = read(worldVariablesProvider.notifier);
     _spawner = read(enemySpawnerProvider.notifier);
     // size of the entire sprite
     state = state.copyWith(size: Size(16 * scaleFactor, 16 * scaleFactor));
@@ -67,15 +69,17 @@ class PlayerController extends StateNotifier<Player> {
   }
 
   void renderPlayer(Canvas c, x) {
-    _stateLogic(x);
-    _checkCollision();
-    c.save();
-    c.translate(state.position.dx, state.position.dy);
-    c.scale(scaleFactor);
-    if (sprite != null) {
-      _spriteAnimation(c);
+    if(sprite != null){
+      _stateLogic(x);
+      // _checkCollision();
+      c.save();
+      c.translate(state.position.dx, state.position.dy);
+      c.scale(scaleFactor);
+      if (sprite != null) {
+        _spriteAnimation(c);
+      }
+      c.restore();
     }
-    c.restore();
   }
 
   // * ===================== State
@@ -162,18 +166,22 @@ class PlayerController extends StateNotifier<Player> {
   void jump() {
     if (_mS == MovementStates.Run) {
       _setState(MovementStates.Jump);
-      state = state.copyWith(velocityY: jumpVelocity);
+      state =
+          state.copyWith(velocityY: jumpVelocity * _wv.speed);
     } else if (_mS == MovementStates.Jump) {
-      state = state.copyWith(velocityY: jumpVelocity);
+      state =
+          state.copyWith(velocityY: jumpVelocity * _wv.speed);
       _setState(MovementStates.DoubleJump);
     } else if (_mS == MovementStates.Fall && _oldState == MovementStates.Jump) {
-      state = state.copyWith(velocityY: jumpVelocity);
+      state =
+          state.copyWith(velocityY: jumpVelocity * _wv.speed);
       _setState(MovementStates.DoubleJump);
     }
   }
 
   void _move(x) {
-    acceleration = pow(jumpVelocity, 2) / (2 * maxDistanceToJump);
+    acceleration = (pow(jumpVelocity * _wv.speed, 2) /
+            (2 * maxDistanceToJump));
     if (state.position == _initialPosition &&
         _mS != MovementStates.Run &&
         _gameStarted) {
@@ -206,7 +214,7 @@ class PlayerController extends StateNotifier<Player> {
   int frameCount = 0;
 
   void _spriteAnimation(Canvas c) {
-    final dark = read(darkWorldProvider);
+    final dark = _wv.isDark;
     final List<int> v = framesValuesPlayer[animationIndex]; // frame Values
     final int amountFrames = spritesPlayer[animationIndex].length;
     final int fc = 60 ~/ v[0];

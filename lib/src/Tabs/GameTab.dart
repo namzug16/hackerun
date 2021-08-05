@@ -33,18 +33,12 @@ class GameTab extends HookWidget {
             playerController.jump();
           }
         },
-        child: Stack(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: FunvasContainer(
-                funvas: GameFunvas(game),
-              ),
-            ),
-            RepaintBoundary(child: Ground()),
-            // RepaintBoundary(child: TestButton()),
-          ],
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: FunvasContainer(
+            funvas: GameFunvas(game),
+          ),
         ),
       ),
     );

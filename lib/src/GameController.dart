@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hackerun/src/Enemies/EnemySpawnerController.dart';
 import 'package:hackerun/src/Player/PlayerController.dart';
+import 'package:hackerun/src/WordlProviders/WorldElements.dart';
 import 'package:hackerun/src/WordlProviders/WorldProviders.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -13,35 +14,41 @@ class GameController extends StateNotifier<bool> {
 
   late final PlayerController _player;
   late final EnemySpawnerController _spawner;
+  late final WorldElements _elements;
+  late final WorldVariables _wv;
 
   void init(Size size) {
     _player = read(playerProvider.notifier);
     _spawner = read(enemySpawnerProvider.notifier);
+    _elements = read(worldElementsProvider.notifier);
+    _wv = read(worldVariablesProvider.notifier);
     _player.init(size);
     _spawner.init();
   }
 
-  int score = 0;
+  int _score = 0;
 
   /// Colors;
   ///rgb(17, 17, 17); dark
   ///186 186 light
   ///33 210 246 blue
   void renderGame(Canvas c, x) {
+    _updateWorldVelocity();
     c.drawPaint(Paint()
-      ..color = read(darkWorldProvider)
+      ..color = _wv.isDark
           ? Color.fromRGBO(17, 17, 17, 1)
           : Color.fromRGBO(186, 186, 186, 1));
     _spawner.renderEnemies(c, x);
     _player.renderPlayer(c, x);
+    _elements.renderWorldElements(c, x);
     _renderScore(c, x);
-    if (!state && score == 0) {
+    if (!state && _score == 0) {
       _renderStartGameButton(c, x);
-    } else if (!state && score > 0) {
+    } else if (!state && _score > 0) {
       _renderRestartButton(c, x);
     }
 
-    if (state && _player.isAlive) score++; // real score is score/5.floor()
+    if (state && _player.isAlive) _score++; // real score is score/5.floor()
     // _player.renderHitBox(c);
     // _player.renderState(c);
   }
@@ -52,7 +59,7 @@ class GameController extends StateNotifier<bool> {
   }
 
   void _renderScore(Canvas c, x) {
-    String text = (score / 5).floor().toString();
+    String text = (_score / 5).floor().toString();
 
     final tp = TextPainter(
       text: TextSpan(
@@ -60,7 +67,7 @@ class GameController extends StateNotifier<bool> {
           style: TextStyle(
               fontFamily: 'DpComic',
               fontSize: 50,
-              color: !read(darkWorldProvider)
+              color: !_wv.isDark
                   ? Color.fromRGBO(17, 17, 17, 1)
                   : Color.fromRGBO(186, 186, 186, 1))),
       textDirection: TextDirection.ltr,
@@ -95,19 +102,31 @@ class GameController extends StateNotifier<bool> {
     }
   }
 
+  bool inc = true;
+  final double iniFS = 0;
+  final double endFS = 15;
+  double? p;
   void _renderButton(String text, Canvas c, x) {
+    if(p == null) p = iniFS;
+    if(inc){
+      p = p! + 0.5;
+      if(p == endFS) inc = false;
+    }else{
+      p = p! - 0.5;
+      if(p == iniFS) inc = true;
+    }
     final tp = TextPainter(
       text: TextSpan(
           text: text,
           style: TextStyle(
               fontFamily: 'DpComic',
               fontSize: 40,
-              color: !read(darkWorldProvider)
+              color: !_wv.isDark
                   ? Color.fromRGBO(17, 17, 17, 1)
                   : Color.fromRGBO(186, 186, 186, 1))),
       textDirection: TextDirection.ltr,
     )..layout();
-    final r = Offset(x.width /2 - tp.width / 2, x.height / 3 - tp.height / 2) &
+    final r = Offset(x.width /2 - tp.width / 2, x.height / 3 - tp.height / 2 + p) &
         tp.size;
     c.save();
     tp.paint(c, r.topLeft);
@@ -123,17 +142,36 @@ class GameController extends StateNotifier<bool> {
     _tab = tab;
   }
 
+  bool get gameStarted => _gameStarted;
+  bool _gameStarted = false;
+
   void _startGame() {
     _acceptsTabs = false;
+    _gameStarted = true;
     state = true;
     _player.startGame();
     _spawner.startGame();
   }
 
   void _restartGame() {
-    score = 0;
+    _score = 0;
+    _gameStarted = false;
     _player.restartGame();
     _spawner.restartGame();
+  }
+
+  int _savedValueSpeed = 0;
+  int _savedValueDark = 0;
+  void _updateWorldVelocity(){
+    if((_score/120).floor() != _savedValueSpeed && _wv.speed < 2.5){
+      _wv.incrementSpeed();
+      _savedValueSpeed++;
+      print(_wv.speed);
+    }
+    if(((_score/5)/500).floor() != _savedValueDark){
+      _wv.changeColorWorld();
+      _savedValueDark++;
+    }
   }
 }
 

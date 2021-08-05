@@ -15,12 +15,14 @@ class EnemySpawnerController extends StateNotifier<bool> {
 
   final Reader read;
 
-  PlayerController? _player;
+  late final PlayerController _player;
+  late final WorldVariables _wv;
   Image? spriteSheet;
 
   void init() async {
     spriteSheet = await loadImage("HackerEnemies-Sheet.png");
-    if (_player == null) _player = read(playerProvider.notifier);
+    _player = read(playerProvider.notifier);
+    _wv = read(worldVariablesProvider.notifier);
   }
 
   bool _gameStarted = false;
@@ -44,9 +46,9 @@ class EnemySpawnerController extends StateNotifier<bool> {
   bool? _savedDark;
 
   void renderEnemies(Canvas c, x) {
-    final dark = read(darkWorldProvider);
-    if (_savedDark == null) _savedDark = dark;
     if (spriteSheet != null) {
+    final dark = _wv.isDark;
+    if (_savedDark == null) _savedDark = dark;
       if (_gameStarted) {
         _getObstacle(x, dark);
       }
@@ -55,7 +57,7 @@ class EnemySpawnerController extends StateNotifier<bool> {
           if (dark != _savedDark) {
             f.setDark();
           }
-          if (!_player!.isAlive) f.stop();
+          if (!_player.isAlive) f.stop();
           f.renderFirewall(c);
           if (f.shouldBeDeleted && firewallToDelete == null)
             firewallToDelete = firewalls.indexOf(f);
@@ -70,7 +72,7 @@ class EnemySpawnerController extends StateNotifier<bool> {
           if (dark != _savedDark) {
             b.setDark();
           }
-          if (!_player!.isAlive) b.stop();
+          if (!_player.isAlive) b.stop();
           b.renderBug(c);
           if (b.shouldBeDeleted && bugToDelete == null)
             bugToDelete = bugs.indexOf(b);
@@ -162,7 +164,8 @@ class EnemySpawnerController extends StateNotifier<bool> {
       size: Size(x.width, x.height),
       lvl: lvl,
       posX: posX,
-      vel: 10,
+      // vel: 10*read(worldSpeed).state,
+      vel: 10*_wv.speed,
       sprite: spriteSheet!,
       isDark: isDark,
     ));
@@ -173,7 +176,8 @@ class EnemySpawnerController extends StateNotifier<bool> {
         fly: fly,
         sprite: spriteSheet!,
         posX: posX,
-        vel: 10,
+        // vel: 10*read(worldSpeed).state,
+        vel: 10*_wv.speed,
         isDark: isDark,
         size: Size(x.width, x.height)));
   }
